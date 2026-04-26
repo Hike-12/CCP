@@ -42,7 +42,7 @@ while (i < n) {
 **Edge cases:**
 - Pattern longer than text: no matches
 - Overlapping matches: handled by `j = lps[j-1]` after match
-- Empty pattern: technically matches everywhere
+- Empty pattern: this snippet assumes a non-empty pattern; otherwise add a guard before accessing `pat[0]` / `pat[j]`
 
 **Common mistakes:**
 - Resetting `j=0` on mismatch (that's naive O(nm), not KMP)
