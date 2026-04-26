@@ -14,46 +14,178 @@
 ### Code Snippet (Important Part Only)
 
 ```cpp
-int count = 0;
-for (int src = 0; src < V; src++) {
-    if (visited[src]) continue;
-    count++;  // new component found
-    // BFS from src marks all nodes in this component
-    bfs(src, visited, adj);
+#include <iostream>
+#include <vector>
+#include <queue>
+using namespace std;
+
+int connectedComponents(int V, vector<vector<int>>& adj) {
+    vector<bool> visited(V, false);
+    int count = 0;
+
+    for (int src = 0; src < V; src++) {
+        if (visited[src]) continue;
+        count++;
+        queue<int> q;
+        q.push(src);
+        visited[src] = true;
+        
+        while (!q.empty()) {
+            int u = q.front(); q.pop();
+            for (int v : adj[u]) {
+                if (!visited[v]) {
+                    visited[v] = true;
+                    q.push(v);
+                }
+            }
+        }
+    }
+    return count;
 }
-return count;
 ```
 
 ---
 
-### Detailed Explanation
+### Detailed Line-by-Line Explanation
 
-- Iterate over all vertices. When an unvisited vertex is found, increment the component counter and BFS/DFS to mark all reachable vertices as visited.
-- The total number of BFS/DFS starts equals the number of connected components.
+```cpp
+int connectedComponents(int V, vector<vector<int>>& adj) {
+```
+*   Declares a function `connectedComponents` which calculates and returns the number of disconnected groups (components) in an undirected graph given `V` vertices and an adjacency list `adj`.
 
-**Why it works:** BFS/DFS from a node visits exactly all nodes in its connected component. Starting a new BFS from an unvisited node means it's a different component.
+```cpp
+    vector<bool> visited(V, false);
+```
+*   Creates a boolean array `visited` of size `V`, initially setting all values to `false`. This keeps track of whether a node has been explored by the BFS to prevent infinite loops and redundant checks.
 
-**Edge cases:**
-- All nodes connected: 1 component
-- No edges: V components (each node is its own component)
-- Single node: 1 component
+```cpp
+    int count = 0;
+```
+*   Initializes a `count` variable to `0`. This will store the total number of connected components. Every time we find a node that hasn't been visited yet, it must be part of a new, unseen component.
 
-**Common mistakes:**
-- Forgetting to handle disconnected graphs (only running BFS from node 0)
-- Using directed adjacency list for undirected graph (must add edges in both directions)
+```cpp
+    for (int src = 0; src < V; src++) {
+```
+*   A `for` loop that iterates through every possible vertex `src` from `0` to `V - 1`. This guarantees we check every node in the graph, even if the graph is broken into multiple disconnected pieces.
+
+```cpp
+        if (visited[src]) continue;
+```
+*   Checks if the current vertex `src` has already been visited. If it has, it belongs to a component we already counted and explored. We `continue` to skip it.
+
+```cpp
+        count++;
+```
+*   If we reach this line, we found a node that is `false` in the `visited` array. This signifies the discovery of a brand new connected component. We increment our `count`.
+
+```cpp
+        queue<int> q;
+```
+*   Initializes an empty integer queue `q` to perform Breadth-First Search (BFS) for this specific component.
+
+```cpp
+        q.push(src);
+```
+*   Pushes the newly discovered `src` vertex into the queue to act as the starting point of the BFS.
+
+```cpp
+        visited[src] = true;
+```
+*   Marks the starting vertex as `true` in the `visited` array so we don't process it again.
+
+```cpp
+        while (!q.empty()) {
+```
+*   The BFS loop executes as long as there are nodes in the queue, systematically exploring outwards.
+
+```cpp
+            int u = q.front(); q.pop();
+```
+*   Retrieves the front node `u` from the queue and removes it.
+
+```cpp
+            for (int v : adj[u]) {
+```
+*   Iterates through every adjacent neighbor `v` of the node `u`.
+
+```cpp
+                if (!visited[v]) {
+```
+*   Checks if the neighbor `v` has NOT been visited yet.
+
+```cpp
+                    visited[v] = true;
+```
+*   If it hasn't, it marks it as visited. Crucially, we mark it visited *when pushing* to prevent pushing the same node multiple times from different neighbors.
+
+```cpp
+                    q.push(v);
+                }
+            }
+        }
+    }
+```
+*   Pushes the unvisited neighbor `v` into the queue so its neighbors will be explored in future BFS iterations. Closes all loops.
+
+```cpp
+    return count;
+}
+```
+*   After checking all `V` nodes, returns the total `count` of connected components found.
 
 ---
 
 ### Dry Run
 
-7 nodes: edges 0-1, 1-2, 3-4, 5-6
+Graph: `7` nodes (0 to 6). Edges: `0-1`, `1-2`, `3-4`, `5-6`.
+Adjacency: `0:[1]`, `1:[0,2]`, `2:[1]`, `3:[4]`, `4:[3]`, `5:[6]`, `6:[5]`
 
-Visit 0 → BFS reaches {0,1,2} → component 1  
-Visit 3 → BFS reaches {3,4} → component 2  
-Visit 5 → BFS reaches {5,6} → component 3  
-Node 6: already visited  
+**Initialization:**
+*   `visited = [F, F, F, F, F, F, F]`
+*   `count = 0`
 
-Total: **3 components**
+**Iteration `src = 0`:**
+*   `visited[0]` is False.
+*   `count` becomes `1`.
+*   BFS starts with Queue: `[0]`. `visited = [T, F, F, F, F, F, F]`
+*   Pop 0. Neighbors: `1`. `visited[1]` is False. Mark `visited[1]=T`, Push 1. Queue: `[1]`.
+*   Pop 1. Neighbors: `0`, `2`.
+    *   `visited[0]` is True.
+    *   `visited[2]` is False. Mark `visited[2]=T`, Push 2. Queue: `[2]`.
+*   Pop 2. Neighbors: `1`. `visited[1]` is True.
+*   Queue is empty. BFS ends.
+*   `visited` is now `[T, T, T, F, F, F, F]`.
+
+**Iterations `src = 1`, `src = 2`:**
+*   `visited[1]` is True -> skip.
+*   `visited[2]` is True -> skip.
+
+**Iteration `src = 3`:**
+*   `visited[3]` is False.
+*   `count` becomes `2`.
+*   BFS starts with Queue: `[3]`. `visited[3]=T`.
+*   Pop 3. Neighbors: `4`. `visited[4]` is False. Mark `visited[4]=T`, Push 4. Queue: `[4]`.
+*   Pop 4. Neighbors: `3`. `visited[3]` is True.
+*   Queue is empty. BFS ends.
+*   `visited` is now `[T, T, T, T, T, F, F]`.
+
+**Iteration `src = 4`:**
+*   `visited[4]` is True -> skip.
+
+**Iteration `src = 5`:**
+*   `visited[5]` is False.
+*   `count` becomes `3`.
+*   BFS starts with Queue: `[5]`. `visited[5]=T`.
+*   Pop 5. Neighbors: `6`. `visited[6]` is False. Mark `visited[6]=T`, Push 6. Queue: `[6]`.
+*   Pop 6. Neighbors: `5`. `visited[5]` is True.
+*   Queue is empty. BFS ends.
+*   `visited` is now `[T, T, T, T, T, T, T]`.
+
+**Iteration `src = 6`:**
+*   `visited[6]` is True -> skip.
+
+**Result:**
+*   Return `count`, which is `3`.
 
 ---
 
@@ -61,13 +193,18 @@ Total: **3 components**
 
 ```mermaid
 graph LR
-    subgraph "Component 1"
-    N0[0] --- N1[1] --- N2[2]
+    subgraph Component_1
+        direction LR
+        N0((0)) --- N1((1)) --- N2((2))
     end
-    subgraph "Component 2"
-    N3[3] --- N4[4]
+    
+    subgraph Component_2
+        direction LR
+        N3((3)) --- N4((4))
     end
-    subgraph "Component 3"
-    N5[5] --- N6[6]
+    
+    subgraph Component_3
+        direction LR
+        N5((5)) --- N6((6))
     end
 ```

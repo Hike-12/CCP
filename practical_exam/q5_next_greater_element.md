@@ -14,35 +14,83 @@
 ### Code Snippet (Important Part Only)
 
 ```cpp
-for (int i = 0; i < n; i++) {
-    while (!st.empty() && arr[st.top()] < arr[i]) {
-        result[st.top()] = arr[i];  // arr[i] is NGE for stack top
-        st.pop();
+#include <iostream>
+#include <vector>
+#include <stack>
+using namespace std;
+
+vector<int> nextGreaterElement(const vector<int>& arr) {
+    int n = arr.size();
+    vector<int> result(n, -1);
+    stack<int> st; // stores indices
+
+    for (int i = 0; i < n; i++) {
+        while (!st.empty() && arr[st.top()] < arr[i]) {
+            result[st.top()] = arr[i];
+            st.pop();
+        }
+        st.push(i);
     }
-    st.push(i);
+    return result;
 }
-// remaining indices in stack → NGE = -1 (default)
 ```
 
 ---
 
-### Detailed Explanation
+### Detailed Line-by-Line Explanation
 
-- Traverse left to right, maintain a monotonic decreasing stack of indices.
-- For each new element, pop all stack indices whose array values are smaller — the current element is their NGE.
-- Push the current index.
-- After the loop, any remaining indices have no NGE → -1.
+```cpp
+vector<int> nextGreaterElement(const vector<int>& arr) {
+```
+*   Declares the function `nextGreaterElement` that takes a constant reference to a vector of integers `arr` and returns a vector of integers containing the next greater elements.
 
-**Why it works:** The stack always holds elements waiting for their NGE. A larger element arriving resolves all smaller waiting elements at once.
+```cpp
+    int n = arr.size();
+```
+*   Stores the size of the input array in a variable `n`.
 
-**Edge cases:**
-- Descending array: all NGEs are -1
-- All same: all NGEs are -1
-- Last element: always -1
+```cpp
+    vector<int> result(n, -1);
+```
+*   Initializes the `result` vector with the same size `n` as the input array, and fills it entirely with `-1`. This handles elements that don't have a next greater element.
 
-**Common mistakes:**
-- Using values in stack instead of indices (makes result mapping harder)
-- Using `<=` instead of `<` in the while condition (equal elements should not trigger NGE)
+```cpp
+    stack<int> st; // stores indices
+```
+*   Declares a stack `st` of integers. Crucially, this stack will store the **indices** of elements, not their actual values. This makes it easier to place the result at the correct position.
+
+```cpp
+    for (int i = 0; i < n; i++) {
+```
+*   Starts a loop iterating through each index `i` of the input array from left to right.
+
+```cpp
+        while (!st.empty() && arr[st.top()] < arr[i]) {
+```
+*   The `while` loop runs as long as the stack is not empty AND the element in the array at the index currently at the top of the stack (`arr[st.top()]`) is strictly less than the current array element we are evaluating (`arr[i]`). 
+
+```cpp
+            result[st.top()] = arr[i];
+```
+*   If the condition is true, it means we have found the Next Greater Element for the element whose index is at the top of the stack! So, we update the `result` array at that index to be the current element `arr[i]`.
+
+```cpp
+            st.pop();
+        }
+```
+*   After finding its NGE, we no longer need to keep track of this index. We pop it from the stack. The `while` loop will then check the *new* top of the stack against `arr[i]`.
+
+```cpp
+        st.push(i);
+    }
+```
+*   After resolving all possible NGEs using the current element `arr[i]`, we push the current index `i` onto the stack because we have not yet found the next greater element for `arr[i]`. It sits in the stack waiting for a future larger element to arrive.
+
+```cpp
+    return result;
+}
+```
+*   Returns the fully populated `result` array. Any elements remaining in the stack simply keep the `-1` initialized earlier.
 
 ---
 
@@ -50,15 +98,46 @@ for (int i = 0; i < n; i++) {
 
 Array: `[4, 5, 2, 25, 7]`
 
-| i | arr[i] | stack (indices) | action |
-|---|--------|-----------------|--------|
-| 0 | 4      | [0]             | push 0 |
-| 1 | 5      | [1]             | 5>4: NGE[0]=5, pop, push 1 |
-| 2 | 2      | [1,2]           | push 2 |
-| 3 | 25     | [3]             | 25>2: NGE[2]=25; 25>5: NGE[1]=25; push 3 |
-| 4 | 7      | [3,4]           | push 4 |
+**Initialization:**
+*   `result`: `[-1, -1, -1, -1, -1]`
+*   `st`: `[]`
 
-NGE[3]=-1, NGE[4]=-1. Result: `[5, 25, 25, -1, -1]`
+**Iteration 1 (`i = 0`, `arr[0] = 4`):**
+*   Stack is empty. `while` loop is skipped.
+*   Push index `0`. Stack: `[0]`.
+
+**Iteration 2 (`i = 1`, `arr[1] = 5`):**
+*   Stack is not empty. Top is `0`.
+*   Check `arr[0] < arr[1]` -> `4 < 5`. True!
+    *   `result[0] = arr[1]` -> `result[0] = 5`. `result`: `[5, -1, -1, -1, -1]`
+    *   Pop from stack. Stack: `[]`.
+*   Push index `1`. Stack: `[1]`.
+
+**Iteration 3 (`i = 2`, `arr[2] = 2`):**
+*   Stack is not empty. Top is `1`.
+*   Check `arr[1] < arr[2]` -> `5 < 2`. False.
+*   Push index `2`. Stack: `[1, 2]`. (Notice stack values `arr[1]=5, arr[2]=2` are decreasing: monotonic stack!)
+
+**Iteration 4 (`i = 3`, `arr[3] = 25`):**
+*   Stack is not empty. Top is `2`.
+*   Check `arr[2] < arr[3]` -> `2 < 25`. True!
+    *   `result[2] = 25`. `result`: `[5, -1, 25, -1, -1]`
+    *   Pop from stack. Stack: `[1]`.
+*   Stack is not empty. Top is `1`.
+*   Check `arr[1] < arr[3]` -> `5 < 25`. True!
+    *   `result[1] = 25`. `result`: `[5, 25, 25, -1, -1]`
+    *   Pop from stack. Stack: `[]`.
+*   Push index `3`. Stack: `[3]`.
+
+**Iteration 5 (`i = 4`, `arr[4] = 7`):**
+*   Stack is not empty. Top is `3`.
+*   Check `arr[3] < arr[4]` -> `25 < 7`. False.
+*   Push index `4`. Stack: `[3, 4]`.
+
+**End of loop.**
+Indices left in stack: `3` (value 25) and `4` (value 7). They have no next greater element, so they remain `-1` in `result`.
+
+Final Result: `[5, 25, 25, -1, -1]`
 
 ---
 
@@ -66,5 +145,5 @@ NGE[3]=-1, NGE[4]=-1. Result: `[5, 25, 25, -1, -1]`
 
 ```mermaid
 graph LR
-    A4["4\nNGE=5"] --> A5["5\nNGE=25"] --> A2["2\nNGE=25"] --> A25["25\nNGE=-1"] --> A7["7\nNGE=-1"]
+    A4["Index 0: 4\nNGE=5"] --> A5["Index 1: 5\nNGE=25"] --> A2["Index 2: 2\nNGE=25"] --> A25["Index 3: 25\nNGE=-1"] --> A7["Index 4: 7\nNGE=-1"]
 ```

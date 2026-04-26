@@ -4,31 +4,36 @@
 
 ### Short Revision Notes (Exam Quick Recall)
 
-- Pattern: Modified Binary Search
-- Core Idea: One half is always sorted; check if target is in sorted half, else search the other half
-- Key Trick: `arr[low] <= arr[mid]` → left half is sorted; else right half is sorted
-- Complexity: O(log n) time, O(1) space
+- **Pattern**: Modified Binary Search.
+- **Core Idea**: In a rotated sorted array, one half (either left to mid, or mid to right) is *always* perfectly sorted.
+- **Key Trick**: Identify which half is sorted first. Then check if the target falls within the value range of that sorted half. If yes, search there; otherwise, search the other half.
+- **Complexity**: O(log n) time, O(1) space.
 
 ---
 
 ### Code Snippet (Important Part Only)
 
 ```cpp
-while (low <= high) {
-    int mid = low + (high - low) / 2;
-    if (arr[mid] == target) return mid;
+int searchRotated(const vector<int>& arr, int target) {
+    int low = 0, high = (int)arr.size() - 1;
 
-    if (arr[low] <= arr[mid]) {         // left half sorted
-        if (target >= arr[low] && target < arr[mid])
-            high = mid - 1;             // target in left half
-        else
-            low = mid + 1;
-    } else {                            // right half sorted
-        if (target > arr[mid] && target <= arr[high])
-            low = mid + 1;              // target in right half
-        else
-            high = mid - 1;
+    while (low <= high) {
+        int mid = low + (high - low) / 2;
+        if (arr[mid] == target) return mid;
+
+        if (arr[low] <= arr[mid]) {
+            if (target >= arr[low] && target < arr[mid])
+                high = mid - 1;
+            else
+                low = mid + 1;
+        } else { 
+            if (target > arr[mid] && target <= arr[high])
+                low = mid + 1;
+            else
+                high = mid - 1;
+        }
     }
+    return -1;
 }
 ```
 
@@ -36,33 +41,68 @@ while (low <= high) {
 
 ### Detailed Explanation
 
-- In a rotated sorted array, at least one half is always sorted.
-- At each step, identify which half is sorted by comparing `arr[low]` with `arr[mid]`.
-- Check if the target falls within the sorted half's range. If yes, search that half; else search the other.
+```cpp
+    int low = 0, high = (int)arr.size() - 1;
+    while (low <= high) {
+        int mid = low + (high - low) / 2;
+        if (arr[mid] == target) return mid;
+```
+- Setup standard binary search bounds. Calculate `mid` safely to avoid integer overflow.
+- If `arr[mid]` is the target, we found it and return its index immediately.
 
-**Why it works:** Even though the array is rotated, binary search still works because we can always determine which half is fully sorted and check membership in O(1).
+```cpp
+        if (arr[low] <= arr[mid]) {
+```
+- This condition checks if the **left half** (`low` to `mid`) is perfectly sorted without any rotation pivot inside it.
 
-**Edge cases:**
-- No rotation (already sorted): works as standard binary search
-- Single element: works
-- Target not present: returns -1
-- Duplicates: this approach can fail (use modified logic with `low++, high--` for duplicates)
+```cpp
+            if (target >= arr[low] && target < arr[mid])
+                high = mid - 1;
+            else
+                low = mid + 1;
+```
+- If the left half is sorted, we check if the `target` falls geographically within its bounds (between `arr[low]` and `arr[mid]`).
+- If it does, we discard the right half by setting `high = mid - 1`.
+- If it does not, the target MUST be in the right half, so we discard the left half by setting `low = mid + 1`.
 
-**Common mistakes:**
-- Using `<` instead of `<=` for `arr[low] <= arr[mid]` (misses the case where low==mid)
-- Incorrect boundary checks when determining target's half
+```cpp
+        } else { 
+```
+- If `arr[low] <= arr[mid]` is false, it means the rotation pivot is in the left half. Therefore, the **right half** (`mid` to `high`) MUST be perfectly sorted.
+
+```cpp
+            if (target > arr[mid] && target <= arr[high])
+                low = mid + 1;
+            else
+                high = mid - 1;
+        }
+```
+- Since the right half is sorted, we check if the `target` lies within its bounds (between `arr[mid]` and `arr[high]`).
+- If it does, discard the left half (`low = mid + 1`).
+- If it doesn't, discard the right half (`high = mid - 1`).
+
+```cpp
+    }
+    return -1;
+```
+- If the loop exits and we haven't found the target, it's not in the array. Return `-1`.
 
 ---
 
 ### Dry Run
 
-Array: `[4, 5, 6, 7, 0, 1, 2]`, target = 0
+**Array:** `[4, 5, 6, 7, 0, 1, 2]`, **Target:** `0`
 
-| low | high | mid | arr[mid] | action |
-|-----|------|-----|----------|--------|
-| 0   | 6    | 3   | 7        | left sorted [4..7]; 0 not in [4,7) → right: low=4 |
-| 4   | 6    | 5   | 1        | right sorted [1..2]; 0 not in (1,2] → left: high=4 |
-| 4   | 4    | 4   | 0        | **found at index 4** |
+1. `low=0`, `high=6`, `mid=3`. `arr[3]=7`.
+   - Is left half `[4, 5, 6, 7]` sorted? Yes, `arr[0] <= arr[3]` (4 <= 7).
+   - Is `target` (0) between 4 and 7? No.
+   - Therefore, search right: `low = mid + 1 = 4`.
+2. `low=4`, `high=6`, `mid=5`. `arr[5]=1`.
+   - Is left half `[0, 1]` sorted? Yes, `arr[4] <= arr[5]` (0 <= 1).
+   - Is `target` (0) between 0 and 1? Yes, it is exactly at `low`.
+   - Search left: `high = mid - 1 = 4`.
+3. `low=4`, `high=4`, `mid=4`. `arr[4]=0`.
+   - `arr[4] == 0`. Target found! Return index `4`.
 
 ---
 
@@ -70,7 +110,13 @@ Array: `[4, 5, 6, 7, 0, 1, 2]`, target = 0
 
 ```mermaid
 graph TD
-    A["Search 0 in [4,5,6,7,0,1,2]"] --> B["mid=3 arr=7\nleft[4-7] sorted\n0 not in range → go right"]
-    B --> C["mid=5 arr=1\nright[1-2] sorted\n0 not in range → go left"]
-    C --> D["mid=4 arr=0\n✓ Found at index 4"]
+    A["Array: [4, 5, 6, 7, 0, 1, 2]<br>Target: 0"] --> B{"mid = 7<br>Is left sorted?"}
+    B -- Yes (4 <= 7) --> C{"Is 0 in [4...7]?"}
+    C -- No --> D["Search right half<br>low = mid+1"]
+    
+    D --> E{"Array: [0, 1, 2]<br>mid = 1<br>Is left sorted?"}
+    E -- Yes (0 <= 1) --> F{"Is 0 in [0...1]?"}
+    F -- Yes --> G["Search left half<br>high = mid-1"]
+    
+    G --> H["Array: [0]<br>mid = 0 == target!"]
 ```

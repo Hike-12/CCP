@@ -8,35 +8,44 @@ struct Node {
     Node(int val) : data(val), next(nullptr) {}
 };
 
-bool detectAndRemoveLoop(Node* head) {
-    if (!head || !head->next) return false;
+bool detectAndRemoveLoop(Node *head)
+{
+    if (!head || !head->next)
+        return false;
 
-    Node* slow = head;
-    Node* fast = head;
+    Node *slow = head;
+    Node *fast = head;
 
     // Detect loop
-    while (fast && fast->next) {
+    while (fast && fast->next)
+    {
         slow = slow->next;
         fast = fast->next->next;
-        if (slow == fast) break;
+        if (slow == fast)
+            break;
     }
 
-    if (!fast || !fast->next) return false; // No loop
+    if (!fast || !fast->next)
+        return false;
 
-    // Find loop start: move slow to head, keep fast at meeting point
+    // Find loop start
     slow = head;
-    if (slow == fast) {
-        // Loop starts at head
-        while (fast->next != slow) fast = fast->next;
-    } else {
-        while (slow->next != fast->next) {
-            slow = slow->next;
-            fast = fast->next;
-        }
+    while (slow != fast)
+    {
+        slow = slow->next;
+        fast = fast->next;
+    }
+
+    // Find last node of loop
+    Node *ptr = slow;
+    while (ptr->next != slow)
+    {
+        ptr = ptr->next;
     }
 
     // Remove loop
-    fast->next = nullptr;
+    ptr->next = nullptr;
+
     return true;
 }
 
