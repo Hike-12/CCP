@@ -33,6 +33,7 @@ run_program  5  q05_next_greater_element.cpp
 run_program  6  q06_topo_sort_kahn.cpp
 run_program  7  q07_bipartite_bfs.cpp
 run_program  8  q08_connected_components.cpp
+run_program 8b q08b_connected_components_dfs.cpp
 run_program  9  q09_avl_tree.cpp
 run_program 10a q10_coin_change_greedy.cpp
 run_program 10b q10_coin_change_dp.cpp
