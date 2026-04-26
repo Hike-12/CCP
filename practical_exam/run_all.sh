@@ -10,7 +10,7 @@ FAIL=0
 run_program() {
     local num="$1"
     local src="$2"
-    local bin="/tmp/${src%.cpp}"
+    local bin="./${src%.cpp}.exe"
 
     echo "============================================================"
     echo " Q${num}: ${src%.cpp}"
