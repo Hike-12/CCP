@@ -34,8 +34,8 @@ fast->next = nullptr;  // remove loop
 ### Detailed Explanation
 
 - **Phase 1 – Detect:** Fast moves 2x, slow moves 1x. If there's a loop they eventually meet inside it.
-- **Phase 2 – Find start:** Reset slow to head. Move both one step at a time. They meet exactly at the loop start node.
-- **Phase 3 – Remove:** Once at loop start, fast is at the last node of the loop (its next is the loop start). Set `fast->next = nullptr`.
+- **Phase 2 – Find loop's last node:** Reset slow to head. Move both one step at a time. When `slow->next == fast->next`, fast is at the last node of the loop (the node whose `next` points back to the loop start).
+- **Phase 3 – Remove:** Set `fast->next = nullptr` to break the cycle.
 
 **Why finding start works:** If loop start is at distance `d` from head, and loop length is `L`, the math shows slow & fast meet at exactly `d` steps from the loop start.
 

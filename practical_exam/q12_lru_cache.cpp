@@ -34,6 +34,16 @@ public:
         tail->prev = head;
     }
 
+    ~LRUCache() {
+        Node* cur = head;
+        while (cur != nullptr) {
+            Node* nxt = cur->next;
+            delete cur;
+            cur = nxt;
+        }
+        cache.clear();
+    }
+
     int get(int key) {
         if (!cache.count(key)) return -1;
         Node* node = cache[key];
@@ -43,6 +53,7 @@ public:
     }
 
     void put(int key, int val) {
+        if (capacity <= 0) return;
         if (cache.count(key)) {
             cache[key]->val = val;
             remove(cache[key]);

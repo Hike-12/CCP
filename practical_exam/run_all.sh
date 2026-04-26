@@ -17,8 +17,7 @@ run_program() {
     echo "============================================================"
 
     if g++ -std=c++17 -O2 -o "$bin" "$src" 2>&1; then
-        "$bin"
-        PASS=$((PASS + 1))
+        "$bin" && PASS=$((PASS + 1)) || { echo "  [RUNTIME ERROR (exit $?)]"; FAIL=$((FAIL + 1)); }
     else
         echo "  [COMPILE ERROR]"
         FAIL=$((FAIL + 1))

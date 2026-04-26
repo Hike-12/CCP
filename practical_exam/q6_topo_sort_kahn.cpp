@@ -4,7 +4,7 @@
 #include <queue>
 using namespace std;
 
-vector<int> topoSort(int V, vector<vector<int>>& adj) {
+vector<int> topoSort(int V, const vector<vector<int>>& adj) {
     vector<int> indegree(V, 0);
     for (int u = 0; u < V; u++)
         for (int v : adj[u]) indegree[v]++;

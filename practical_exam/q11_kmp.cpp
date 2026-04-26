@@ -21,6 +21,7 @@ vector<int> buildLPS(const string& pat) {
 }
 
 vector<int> kmpSearch(const string& text, const string& pat) {
+    if (pat.empty()) return {};
     vector<int> lps = buildLPS(pat);
     vector<int> matches;
     int i = 0, j = 0;

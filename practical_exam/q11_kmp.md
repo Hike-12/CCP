@@ -42,7 +42,7 @@ while (i < n) {
 **Edge cases:**
 - Pattern longer than text: no matches
 - Overlapping matches: handled by `j = lps[j-1]` after match
-- Empty pattern: technically matches everywhere
+- Empty pattern: not supported; add a guard (`if (pat.empty()) return {}`) before entering the search loop
 
 **Common mistakes:**
 - Resetting `j=0` on mismatch (that's naive O(nm), not KMP)
