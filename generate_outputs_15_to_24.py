@@ -152,7 +152,7 @@ def main() -> None:
         print(f"CREATED: {txt_name} | {png_name}")
         count += 1
 
-    print(f"DONE: {count} files (txt+png pairs) generated for programs 15-24")
+    print(f"DONE: {count} files (txt+png pairs) generated for programs 15-25")
 
 
 if __name__ == "__main__":
