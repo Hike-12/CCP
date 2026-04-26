@@ -25,15 +25,15 @@ run_program() {
     echo ""
 }
 
-run_program  1  q1_reverse_k_group.cpp
-run_program  2  q2_detect_remove_loop.cpp
-run_program  3  q3_sort_stack_recursion.cpp
-run_program  4  q4_generate_binary_queue.cpp
-run_program  5  q5_next_greater_element.cpp
-run_program  6  q6_topo_sort_kahn.cpp
-run_program  7  q7_bipartite_bfs.cpp
-run_program  8  q8_connected_components.cpp
-run_program  9  q9_avl_tree.cpp
+run_program  1  q01_reverse_k_group.cpp
+run_program  2  q02_detect_remove_loop.cpp
+run_program  3  q03_sort_stack_recursion.cpp
+run_program  4  q04_generate_binary_queue.cpp
+run_program  5  q05_next_greater_element.cpp
+run_program  6  q06_topo_sort_kahn.cpp
+run_program  7  q07_bipartite_bfs.cpp
+run_program  8  q08_connected_components.cpp
+run_program  9  q09_avl_tree.cpp
 run_program 10a q10_coin_change_greedy.cpp
 run_program 10b q10_coin_change_dp.cpp
 run_program 11  q11_kmp.cpp
