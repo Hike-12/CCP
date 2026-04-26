@@ -152,7 +152,9 @@ def main() -> None:
         print(f"CREATED: {txt_name} | {png_name}")
         count += 1
 
-    print(f"DONE: {count} files (txt+png pairs) generated for programs 15-24")
+    start_num = PROGRAMS[0]["num"]
+    end_num = PROGRAMS[-1]["num"]
+    print(f"DONE: {count} files (txt+png pairs) generated for programs {start_num}-{end_num}")
 
 
 if __name__ == "__main__":
